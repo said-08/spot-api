@@ -83,7 +83,7 @@ def songsByGener(request):
     response = {}
     for gender in genders.data:
         songs = SongSerializer(
-            Song.objects.raw("SELECT * FROM song WHERE genreId_id = '{}'".format(gender['genreId'])),
+            Song.objects.raw("SELECT * FROM song WHERE genreId_id = '{}'".format(gender['id'])),
             many=True
         )
         response[gender['name']] = songs.data
@@ -104,7 +104,7 @@ def createSong(request):
             artistId = artist,
             genreId = gender
         )
-        return Response(song.data)
+        return Response({'response': SongSerializer(song, many=False).data})
     except (Artist.DoesNotExist, Gender.DoesNotExist):
         return Response({'response': 'The artist or genre you are trying to enter does not exist'})
     except IntegrityError:
@@ -140,7 +140,7 @@ def createArtist(request):
 @permission_classes([IsAuthenticated])
 def deleteArtist(request, id):
     try:
-        artist = Artist.objects.get(artistId=id)
+        artist = Artist.objects.get(id=id)
         artist.delete()
         return Response({'response': 'Artist deleted'})
     except Artist.DoesNotExist:
